@@ -117,7 +117,27 @@ e.remove("/tmp/arpbind")
 end
 end
 end
-
+if nixio.fs.access("/etc/AdGuardHome.yaml")then
+s:tab("arpbindconf",translate("arpbind"),translate("This page is about configuration")..translate("/etc/AdGuardHome.yaml")..translate("Document content. Automatic restart takes effect after saving the application"))
+conf=s:taboption("adguardhomeconf",Value,"adguardhomeconf",nil,translate("The starting number symbol (#) or each line of the semicolon (;) is considered a comment; Remove (;) and enable the specified option."))
+conf.template="cbi/tvalue"
+conf.rows=20
+conf.wrap="off"
+conf.cfgvalue=function(t,t)
+return e.readfile("/etc/AdGuardHome.yaml")or""
+end
+conf.write=function(a,a,t)
+if t then
+t=t:gsub("\r\n?","\n")
+e.writefile("/tmp/AdGuardHome.yaml",t)
+if(luci.sys.call("cmp -s /tmp/AdGuardHome.yaml /etc/AdGuardHome.yaml")==1)then
+e.writefile("/etc/AdGuardHome.yaml",t)
+luci.sys.call("/etc/init.d/adguardhome restart >/dev/null")
+end
+e.remove("/tmp/AdGuardHome.yaml")
+end
+end
+end
 if nixio.fs.access("/etc/config/firewall")then
 s:tab("firewallconf",translate("firewall"),translate("This page is about configuration")..translate("/etc/config/firewall")..translate("Document content. Automatic restart takes effect after saving the application"))
 conf=s:taboption("firewallconf",Value,"firewallconf",nil,translate("The starting number symbol (#) or each line of the semicolon (;) is considered a comment; Remove (;) and enable the specified option."))
